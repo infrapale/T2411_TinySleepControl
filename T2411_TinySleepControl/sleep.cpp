@@ -26,6 +26,7 @@ Sleep Time                         <------------>
 
 *****************************************************************************************
 https://ww1.microchip.com/downloads/en/Appnotes/90003229A.pdf
+https://github.com/microPaul/ATtiny412-Sleeping-Lighthouse/blob/main/main.c
 ****************************************************************************************/
 
 
