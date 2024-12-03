@@ -1,4 +1,6 @@
 #include "Arduino.h"
+#include <avr/sleep.h>
+#include <avr/power.h>
 #include "main.h"
 #include "io.h"
 
@@ -27,19 +29,26 @@ void io_blink_color_times(uint8_t pin, uint8_t n, uint16_t us)
 
 void io_power_off(void)
 {
-    pinMode(PIN_PWR_OFF_0, OUTPUT);
-    digitalWrite(PIN_PWR_OFF_0, LOW);
+    PORTA.DIRCLR = PIN_PWR_OFF_BM;
+    // PORTA.OUTSET = PIN_PWR_OFF_BM;
+    //pinMode(PIN_PWR_OFF_0, OUTPUT);
+    //digitalWrite(PIN_PWR_OFF_0, LOW);
 }
 
 void io_power_on(void)
 {
-    pinMode(PIN_PWR_OFF_0, INPUT);
+    PORTA.DIRSET = PIN_PWR_OFF_BM;
+    PORTA.OUTCLR = PIN_PWR_OFF_BM;
+    // pinMode(PIN_PWR_OFF_0, INPUT);
     // digitalWrite(PIN_PWR_OFF_0, HIGH);
 }
 
 bool io_goto_sleep_inp(void)
 {
-    return ((PORTA.IN & PIN_SLEEP_BM)  == 0);
+    PORTA.DIRCLR = PIN_SLEEP_BM;
+    bool zzz  = ((PORTA.IN & PIN_SLEEP_BM)  == 0);
+    PORTA.PIN3CTRL = PORT_PULLUPEN_bm | PORT_ISC_INPUT_DISABLE_gc;
+    return zzz;
 }
 
 uint8_t io_get_clr_input(void)
@@ -56,11 +65,11 @@ bool io_is_wake_up(void)
 void io_gpio_enable(void)
 {
   PORTA.DIRSET = PIN_PWR_OFF_BM;
-  PORTA.OUTCLR = PIN_PWR_OFF_BM;
-  PORTA.DIRSET = PIN_TEST_BM;     
-  PORTA.OUTCLR = PIN_TEST_BM;
+  PORTA.OUTSET = PIN_PWR_OFF_BM;
+  //PORTA.DIRSET = PIN_TEST_BM;     
+  //PORTA.OUTCLR = PIN_TEST_BM;
   PORTA.DIRCLR = PIN_SLEEP_BM;
-  PORTA.PIN3CTRL = 0x00;
+  PORTA.PIN3CTRL |= PORT_ISC_INTDISABLE_gc;
 }
 
 
@@ -89,10 +98,21 @@ void io_gpio_disable(void) {
   PORTA.PIN6CTRL = PORT_ISC_INPUT_DISABLE_gc;
   PORTA.PIN7CTRL = PORT_ISC_INPUT_DISABLE_gc;
   
+  power_all_disable();
   //USART0.CTRLB &= ~USART_RXEN_bm & ~USART_TXEN_bm; // disable USART
 }
 
+#define PA3_INTERRUPT PORTA.INTFLAGS & PIN3_bm
+#define PA3_CLEAR_INTERRUPT_FLAG PORTA.INTFLAGS &= PIN3_bm
 
+ISR(PORTA_PORT_vect)
+{
+  if(PA3_INTERRUPT)
+  {
+    //pb2Ioc = 1;
+    PA3_CLEAR_INTERRUPT_FLAG;
+  }
+}
 
 
 //////////////////////////////////////////////////////////////////

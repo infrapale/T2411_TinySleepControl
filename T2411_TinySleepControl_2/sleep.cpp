@@ -46,7 +46,7 @@ volatile uint8_t rtcIntSemaphore;  // flag from RTS interrupt that may be used b
 //
 void sleep_setup(void) {
   //Serial.swap(1); // need UART pins in swap position to leave DAC available
-
+  io_gpio_enable();
   //initSerialGPIO(); // initialize serial and GPIO (serial is commented out)
   //Serial.println(); // print blank line
   //Serial.println("Sleeping Lighthouse signon msg"); 
@@ -119,8 +119,11 @@ void init32kOscRTCPIT(void) {
 void initSleepMode(void) {
   //SLPCTRL.CTRLA = SLPCTRL_SMODE_IDLE_gc; // set sleep mode to "idle"
   //SLPCTRL.CTRLA = SLPCTRL_SMODE_STDBY_gc; // set sleep mode to "standby"  
+  
   SLPCTRL.CTRLA = SLPCTRL_SMODE_PDOWN_gc; // set sleep mode to "power down"
   SLPCTRL.CTRLA |= SLPCTRL_SEN_bm;  // enable sleep mode
+  //set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  //sleep_enable(); 
 }
 
 
@@ -145,6 +148,7 @@ void sleepNCycles(uint8_t val) {
   }
   // now awake, sleep cycles complete, continue on
   io_gpio_enable();
+  initSleepMode();
   //initSerialGPIO(); // initialize serial and GPIO 
 }
 
