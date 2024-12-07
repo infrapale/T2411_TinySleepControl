@@ -19,54 +19,41 @@ void io_blink_color_times(uint8_t pin, uint8_t n, uint16_t us)
 {
   for (uint8_t i=0; i < n; i++)
   {
-    digitalWrite(pin, HIGH);
+    io_led_on();
     delayMicroseconds(us);
-    digitalWrite(pin, LOW);
+    io_led_off();
     delayMicroseconds(us);
   }
 }
 
 
-void io_power_off(void)
+void io_out_power_off(void)
 {
-    PORTA.DIRCLR = PIN_PWR_OFF_BM;
-    // PORTA.OUTSET = PIN_PWR_OFF_BM;
-    //pinMode(PIN_PWR_OFF_0, OUTPUT);
-    //digitalWrite(PIN_PWR_OFF_0, LOW);
+    PORTA.DIRCLR = PIN_OUT_PWR_OFF_BM;
 }
 
-void io_power_on(void)
+void io_out_power_on(void)
 {
-    PORTA.DIRSET = PIN_PWR_OFF_BM;
-    PORTA.OUTCLR = PIN_PWR_OFF_BM;
-    // pinMode(PIN_PWR_OFF_0, INPUT);
-    // digitalWrite(PIN_PWR_OFF_0, HIGH);
+    PORTA.DIRSET = PIN_OUT_PWR_OFF_BM;
+    PORTA.OUTCLR = PIN_OUT_PWR_OFF_BM;
 }
 
-bool io_goto_sleep_inp(void)
+bool io_inp_goto_sleep(void)
 {
-    //PORTA.DIRCLR = PIN_SLEEP_BM;
-    bool zzz  = (~PORTA.IN & PIN_SLEEP_BM);
-    //PORTA.PIN3CTRL = PORT_PULLUPEN_bm | PORT_ISC_INPUT_DISABLE_gc;
+    bool zzz  = (~PORTA.IN & PIN_INP_SLEEP_BM);
     return zzz;
-}
-
-uint8_t io_get_clr_input(void)
-{
-    return digitalRead(PIN_EDOG_CLR);
-}
-
-bool io_is_wake_up(void)
-{
-   return (digitalRead(PIN_EDOG_WAKE) == 0); 
 }
 
 
 void io_gpio_enable(void)
 {
-  PORTA.DIRSET = PIN_PWR_OFF_BM;
-  PORTA.OUTSET = PIN_PWR_OFF_BM;
-  PORTA.DIRCLR = PIN_SLEEP_BM;
+  PORTA.DIRSET = PIN_OUT_PWR_OFF_BM;
+  PORTA.OUTSET = PIN_OUT_PWR_OFF_BM;
+
+  PORTA.DIRSET = PIN_OUT_TEST_BM;
+  PORTA.OUTSET = PIN_OUT_TEST_BM;
+
+  PORTA.DIRCLR = PIN_INP_SLEEP_BM;
   PORTA.PIN6CTRL =  (PORT_PULLUPEN_bm | PORT_ISC_INTDISABLE_gc) & ~PORT_ISC_INPUT_DISABLE_gc;  
 }
 
@@ -96,7 +83,6 @@ void io_gpio_disable(void) {
   PORTA.PIN6CTRL = PORT_ISC_INPUT_DISABLE_gc;
   PORTA.PIN7CTRL = PORT_ISC_INPUT_DISABLE_gc;
   
-  // power_all_disable();
   //USART0.CTRLB &= ~USART_RXEN_bm & ~USART_TXEN_bm; // disable USART
 }
 
@@ -112,26 +98,10 @@ ISR(PORTA_PORT_vect)
   }
 }
 
+//  LED control functions
+void io_led_on(void) {PORTA.OUTSET = PIN_OUT_TEST_BM;} 
+void io_led_off(void) {PORTA.OUTCLR = PIN_OUT_TEST_BM;}
+void io_led_toggle(void) {PORTA.OUTTGL = PIN_OUT_TEST_BM;} 
 
-//////////////////////////////////////////////////////////////////
-//  LED set/clear/toggle functions
-//
-void ledOn(void) {PORTA.OUTSET = PIN_PWR_OFF_BM;} // turn on active high LED on PA1
-void ledOff(void) {PORTA.OUTCLR = PIN_PWR_OFF_BM;} // turn off active high LED on PA1
-void ledToggle(void) {PORTA.OUTTGL = PIN_PWR_OFF_BM;} // toggle active high LED on PA1
-
-//////////////////////////////////////////////////////////////////
-//  Power on/off
-//
-void pwr_off(void) {PORTA.OUTSET = PIN_PWR_OFF_BM;} 
-void pwr_on(void)  {PORTA.OUTCLR = PIN_PWR_OFF_BM;} 
-
-
-//////////////////////////////////////////////////////////////////
-//  Diagnostic pin set/clear/toggle functions
-//
-void diagnosticPinHigh(void) {PORTA.OUTSET = PIN2_bm;} // port output high
-void diagnosticPinLow(void) {PORTA.OUTCLR = PIN2_bm;} // port output low
-void diagnosticPinToggle(void) {PORTA.OUTTGL = PIN2_bm;} // port output toggle
 
 

@@ -33,24 +33,25 @@ main MCU
 UPDI is used for programming the ATTiny412
 **********************************************************************/
 
-
+/// Corrected pin mapping
 #define PA1 (2u)
 #define PA2 (3u)
 #define PA3 (4u)
 #define PA6 (0u)
 #define PA7 (1u)
 
-#define PIN_I2C_SDA         PA1
-#define PIN_I2C_SCL         PA2
+#define PIN_I2C_SDA             PA1
+#define PIN_I2C_SCL             PA2
 
-
+/// TODO ...
 #define PIN_EDOG_WAKE       PA6
-//#define PIN_PWR_OFF_0       PA6
 #define PIN_EDOG_CLR        PA7
+///  ... TODO
 
-#define PIN_SLEEP_BM        0x40
-#define PIN_TEST_BM         0x08
-#define PIN_PWR_OFF_BM      0x80
+#define PIN_INP_SLEEP_BM        0x40
+#define PIN_TEST_BM             0x08
+#define PIN_OUT_PWR_OFF_BM      0x80
+#define PIN_OUT_TEST_BM         0x04
 
 
 
@@ -62,16 +63,18 @@ void io_gpio_disable(void);
 
 void io_blink_color_times(uint8_t pin, uint8_t n, uint16_t us);
 
-void io_power_off(void);
+void io_out_power_off(void);
 
-void io_power_on(void);
+void io_out_power_on(void);
 
-bool io_goto_sleep_inp(void);
+bool io_inp_goto_sleep(void);
 
+void io_led_on(void);
 
-uint8_t io_get_clr_input(void);
+void io_led_off(void);
 
-bool io_is_wake_up(void);
+void io_led_toggle(void); 
+
 
 
 #endif

@@ -69,8 +69,8 @@ uint32_t next_task_run_ms = 0;
 
 sleep_st sleep = {
   .goto_sleep = false,
-  .sleep_time_ms = 4000,
-  .sleep_time_cycles = 8
+  .do_wakeup_routines = false,
+  .sleep_time_ms = 4000
 };
 
 
@@ -83,68 +83,55 @@ void wire_begin(void)
 
 
 
-void setup() {
+void setup() 
+{
   sleep_setup();
   io_gpio_enable();
-  //io_initialize();
-  //io_blink_color_times(PIN_LED, restarts.internal, 2);
   wire_begin();
+  epp_initialize_data();
+
+  main_data.wd_interval_ms = 5000;
+  main_data.wd_is_active = 0;
+  main_data.sleep_time_cycles = 60;   // x 500ms
+  edog_initialize();
+  next_task_run_ms = millis() + TICK_TIME;
+   io_out_power_on();
 }
 
 
-///////////////////////////////////////////////////////////
-// loop
-//
-// This is the Super Loop.  In the Arduino world this is really a function (not a loop)
-// that is called repeatedly by the Arduino executive.  As such, any local variables
-// will be lost each time when the function concludes.  If you want to retain local
-// variables then wrap the loop code in a while(1) statement.
-//
-void loop() {
-  while (1) {
-    // this loop blinks the LED three times then a 3 second gap
-    // the MCU will be in POWER DOWN sleep mode when the LED is off
-
-    while(1){
-      sleep.goto_sleep = io_goto_sleep_inp();
-      if (sleep.goto_sleep )  
-      {
-        io_power_off();
-        Wire.end();
-        sleepNCycles(8);
-      }
-      io_power_on();
-      wire_begin();
-      delay(20000);
-    }
-
-
-    sleep.goto_sleep = io_goto_sleep_inp();
-
-    if (io_goto_sleep_inp())
+void loop() 
+{
+    if (sleep.goto_sleep )  
     {
-      delay(100);
-      if (!io_goto_sleep_inp())
-      {
-        pwr_off();
-        sleepNCycles(8); 
-        pwr_on();
-        delay(1000);
-      }
+      sleep.goto_sleep = false;
+      io_out_power_off();
+      Wire.end();
+      sleepNCycles(main_data.sleep_time_cycles);
+      sleep.do_wakeup_routines = true;
     }
-    delay(10);
-    /*
-    delay(5000);
-    pwr_on(); 
-    pwr_off();
-    sleepNCycles(8); // cycles are about 500ms each
+    if(sleep.do_wakeup_routines)
+    {
+      sleep.do_wakeup_routines = false;
+      io_out_power_on();
+      wire_begin();
+    }
+
+    if (i2c_buff.cmd_len > 0) 
+    {
+      // io_blink_color_times(PIN_PWR_OFF , i2c_buff.cmd_len, 4);
+      cmd_execute_cmd(i2c_buff.cmd[0]);
+      i2c_buff.cmd_len = 0;
+    }
     
-    pwr_on(); 
-    delay(10000);
-    pwr_off(); 
-    sleepNCycles(8); // cycles are about 500ms each
-    */
-  }
+    if(millis() > next_task_run_ms)
+    {
+      next_task_run_ms = millis() + TICK_TIME;
+      sleep.goto_sleep = io_inp_goto_sleep();
+      //eep_time_machine();
+      //edog_state_machine();
+    }
+
+
 }
 
 
