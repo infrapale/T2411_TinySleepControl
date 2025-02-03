@@ -48,10 +48,24 @@ UPDI is used for programming the ATTiny412
 #define PIN_EDOG_CLR        PA7
 ///  ... TODO
 
-#define PIN_INP_SLEEP_BM        0x40
-#define PIN_TEST_BM             0x08
-#define PIN_OUT_PWR_OFF_BM      0x80
-#define PIN_OUT_TEST_BM         0x04
+//#define HW_BREAKOUT_1 
+#define HW_T2412_RFM69_MINI 
+
+#ifdef HW_T2412_RFM69_MINI 
+  #define PIN_INP_SLEEP_BM        0x40
+  #define PIN_TEST_BM             0x08
+  #define PIN_OUT_PWR_OFF_BM      0x80
+  #define PIN_OUT_TEST_BM         0x04
+
+#endif
+
+#ifdef  HW_BREAKOUT_1 
+  #define PIN_INP_SLEEP_BM        0x40
+  #define PIN_TEST_BM             0x08
+  #define PIN_OUT_PWR_OFF_BM      0x80
+  #define PIN_OUT_TEST_BM         0x04
+#endif
+
 
 
 
