@@ -67,13 +67,6 @@ restarts_st restarts;
 
 uint32_t next_task_run_ms = 0;
 
-sleep_st sleep = {
-  .goto_sleep = false,
-  .do_wakeup_routines = false,
-  .sleep_time_ms = 4000
-};
-
-
 void wire_begin(void)
 {
   Wire.begin(I2C_ADDR); // Initialize I2C (Slave Mode)
@@ -92,26 +85,29 @@ void setup()
 
   main_data.wd_interval_ms = 5000;
   main_data.wd_is_active = 0;
-  main_data.sleep_time_cycles = 60;   // x 500ms
+  main_data.sleep_time_cycles = 10;   // x 500ms
+  main_data.goto_sleep = false;
+  main_data.do_wakeup_routines = false;
+  main_data.sleep_time_ms = 4000;
   edog_initialize();
   next_task_run_ms = millis() + TICK_TIME;
-   io_out_power_on();
+  io_out_power_on();
 }
 
 
 void loop() 
 {
-    if (sleep.goto_sleep )  
+    if (main_data.goto_sleep )  
     {
-      sleep.goto_sleep = false;
+      main_data.goto_sleep = false;
       io_out_power_off();
       Wire.end();
       sleepNCycles(main_data.sleep_time_cycles);
-      sleep.do_wakeup_routines = true;
+      main_data.do_wakeup_routines = true;
     }
-    if(sleep.do_wakeup_routines)
+    if(main_data.do_wakeup_routines)
     {
-      sleep.do_wakeup_routines = false;
+      main_data.do_wakeup_routines = false;
       io_out_power_on();
       wire_begin();
     }
@@ -126,9 +122,9 @@ void loop()
     if(millis() > next_task_run_ms)
     {
       next_task_run_ms = millis() + TICK_TIME;
-      sleep.goto_sleep = io_inp_goto_sleep();
+      //main_data.goto_sleep = io_inp_goto_sleep();
       //eep_time_machine();
-      //edog_state_machine();
+      edog_state_machine();
     }
 
 

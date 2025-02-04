@@ -41,8 +41,9 @@ void edog_initialize(void)
 
 void edog_state_machine(void)
 {
-    /*
-    uint8_t clr_input = io_get_clr_input();
+    
+    uint8_t clr_input = io_inp_clr_wd();
+
     if (ed.last_clr_value != clr_input )
     {
         ed.timeout_at_ms = millis() + main_data.wd_interval_ms;
@@ -60,30 +61,20 @@ void edog_state_machine(void)
       case 100:  // WD is active
         if (millis() > ed.timeout_at_ms)
         {
-            if (!io_is_wake_up())
-            {
-                ed.state = 110;
-                ed.power_on_at_ms = millis() + WD_POWER_OFF_DURATION;
-                restarts.watchdog++;
-                eep_req_save(EEPROM_RESTARTS);
-                io_out_power_off();
-
-            }
+            io_out_power_off();
+            ed.power_on_at_ms = millis() + 2000;
+            restarts.watchdog++;
+            eep_req_save(EEPROM_RESTARTS);
+            ed.state = 110;
         }
         break;
-      case 110:
-          if ((millis() > ed.power_on_at_ms) || io_is_wake_up())
-          {
+      case 110: 
+        if(millis() > ed.power_on_at_ms)
+        {
             io_out_power_on();
-            edog_clear();
-            ed.state = 100;
-          }
-          break;
+            ed.timeout_at_ms = millis() + main_data.wd_interval_ms;
+            ed.state = 10;
+        }
+        break;
     }
-    if (!main_data.wd_is_active) 
-    {
-      ed.state = 10;
-      io_out_power_on();
-    }   
-    */
-}
+}   

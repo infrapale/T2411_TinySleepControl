@@ -38,10 +38,10 @@ void io_out_power_on(void)
     PORTA.OUTCLR = PIN_OUT_PWR_OFF_BM;
 }
 
-bool io_inp_goto_sleep(void)
+bool io_inp_clr_wd(void)
 {
-    bool zzz  = (~PORTA.IN & PIN_INP_SLEEP_BM);
-    return zzz;
+    bool wd  = ((PORTA.IN & PIN_INP_CLR_WD_BM) != 0);
+    return wd;
 }
 
 
@@ -53,7 +53,7 @@ void io_gpio_enable(void)
   PORTA.DIRSET = PIN_OUT_TEST_BM;
   PORTA.OUTSET = PIN_OUT_TEST_BM;
 
-  PORTA.DIRCLR = PIN_INP_SLEEP_BM;
+  PORTA.DIRCLR = PIN_INP_CLR_WD_BM;
   PORTA.PIN6CTRL =  (PORT_PULLUPEN_bm | PORT_ISC_INTDISABLE_gc) & ~PORT_ISC_INPUT_DISABLE_gc;  
 }
 

@@ -34,25 +34,25 @@ UPDI is used for programming the ATTiny412
 **********************************************************************/
 
 /// Corrected pin mapping
-#define PA1 (2u)
-#define PA2 (3u)
-#define PA3 (4u)
-#define PA6 (0u)
-#define PA7 (1u)
+// #define PA1 (2u)
+// #define PA2 (3u)
+// #define PA3 (4u)
+// #define PA6 (0u)
+// #define PA7 (1u)
 
 #define PIN_I2C_SDA             PA1
 #define PIN_I2C_SCL             PA2
 
 /// TODO ...
-#define PIN_EDOG_WAKE       PA6
-#define PIN_EDOG_CLR        PA7
+// #define PIN_EDOG_WAKE       PA6
+// #define PIN_EDOG_CLR        PA7
 ///  ... TODO
 
 //#define HW_BREAKOUT_1 
 #define HW_T2412_RFM69_MINI 
 
 #ifdef HW_T2412_RFM69_MINI 
-  #define PIN_INP_SLEEP_BM        0x40
+  #define PIN_INP_CLR_WD_BM       0x40
   #define PIN_TEST_BM             0x08
   #define PIN_OUT_PWR_OFF_BM      0x80
   #define PIN_OUT_TEST_BM         0x04
@@ -60,7 +60,7 @@ UPDI is used for programming the ATTiny412
 #endif
 
 #ifdef  HW_BREAKOUT_1 
-  #define PIN_INP_SLEEP_BM        0x40
+  #define PIN_INP_CLR_WD_BM       0x40
   #define PIN_TEST_BM             0x08
   #define PIN_OUT_PWR_OFF_BM      0x80
   #define PIN_OUT_TEST_BM         0x04
@@ -81,7 +81,7 @@ void io_out_power_off(void);
 
 void io_out_power_on(void);
 
-bool io_inp_goto_sleep(void);
+bool io_inp_clr_wd(void);
 
 void io_led_on(void);
 

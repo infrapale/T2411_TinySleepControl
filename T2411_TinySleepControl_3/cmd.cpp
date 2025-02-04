@@ -12,7 +12,6 @@ uint8_t dummy_byte;
 uint8_t user_eeprom_indx = EEPROM_USER_0;
 extern volatile main_data_st main_data;
 extern volatile restarts_st restarts;
-extern volatile sleep_st sleep;
 extern i2c_buff_st i2c_buff;
 
 const cmd_data_st cmd_data[CMD_NBR_OF] = 
@@ -66,14 +65,16 @@ void cmd_execute_cmd(uint8_t cmd)
     case CMD_SET_WD_INTERVAL:
       main_data.wd_interval_ms = buff_get_u32((uint8_t*)i2c_buff.cmd, 1);
       main_data.wd_is_active = 1;
+      edog_clear();
       //uint32_t buff_get_u32(uint8_t *buff, uint8_t indx)
       eep_req_save(EEPROM_MAIN_DATA);
       break;
     case CMD_GET_WD_INTERVAL:
       break;
     case CMD_SET_SLEEP_TIME:
-      main_data.wd_interval_ms = buff_get_u32((uint8_t*)i2c_buff.cmd, 1);
-      sleep.goto_sleep  = true;
+      main_data.sleep_time_ms = buff_get_u32((uint8_t*)i2c_buff.cmd, 1);
+      main_data.sleep_time_cycles = main_data.sleep_time_ms / 500;
+      main_data.goto_sleep  = true;
       break;
     case CMD_GET_SLEEP_TIME:
       break; 
@@ -96,9 +97,9 @@ void cmd_execute_cmd(uint8_t cmd)
     case CMD_EEPROM_SAVE:
       break;    
     case CMD_POWER_OFF_0:
-      sleep.sleep_time_ms = buff_get_u32((uint8_t*)i2c_buff.cmd, 1);
-      main_data.sleep_time_cycles = sleep.sleep_time_ms / 500;
-      sleep.goto_sleep = true;
+      main_data.sleep_time_ms = buff_get_u32((uint8_t*)i2c_buff.cmd, 1);
+      main_data.sleep_time_cycles = main_data.sleep_time_ms / 500;
+      //main_data.goto_sleep = true;
       break; 
     case CMD_EXT_RESET:
       break;  
